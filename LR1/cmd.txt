@@ -1,0 +1,2 @@
+jar cvfm myfirst.jar manifest.mf MyFirstClass.class myfirstpackage
+java -jar myfirst.jar
