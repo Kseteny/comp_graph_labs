@@ -168,29 +168,33 @@ def quaternions_abs(num: np.array)->np.array:
     num[3] = num[3]*-1
     return num
 def quaternions_norm(num: np.array)->float:
-    return math.sqrt(num[0]**2, num[1]**2, num[2]**2, num[3]**2)
+    return math.sqrt(num[0]**2 + num[1]**2 + num[2]**2 + num[3]**2)
 
 def quaternions_povorot(ux, uy, uz, teta)->np.array:
     return np.array([math.cos(teta/2), ux*math.sin(teta/2), uy*math.sin(teta/2), uz*math.sin(teta/2)])
 
 def rotate_quaternion(v, teta, tx, ty, tz):
     n = np.array([1, 1, 1])
-    n = n/np.linalg.norm(n)
-    
+    n = n / np.linalg.norm(n)
     q = quaternions_povorot(n[0], n[1], n[2], teta)
+    q = q / quaternions_norm(q)
+    '''Как все было
     for i in range(len(v)):
         q_result = quaternions_time(quaternions_time(q, np.array([0, v[i][0], v[i][1], v[i][2]])), quaternions_abs(q))
-        #print(v[i])
-        v[i] = np.array([q_result[1]+tx, q_result[2]+ty, q_result[3]+tz]) 
-        #print(v[i])
-        #exit()
+        v[i] = np.array([q_result[1]+tx, q_result[2]+ty, q_result[3]+tz])
+        '''
+    for i in range(len(v)):
+        vertex_q = np.array([0, v[i][0], v[i][1], v[i][2]])
+        q_conjugate = quaternions_abs(q)
+        rotated_q = quaternions_time(quaternions_time(q, vertex_q), q_conjugate)
+        v[i] = np.array([rotated_q[1] + tx, rotated_q[2] + ty, rotated_q[3] + tz])
 
 def GUBRID_MOOOOOOOOOOOOOD(image_array:np.array, filename, v, f0, f1, vn, vt, texture_image, tx, ty, tz, ahpha, beta, gamma):
     ALPHA = ahpha
     BETA = beta
     GAMMA = gamma
     #rotate_by_alplha_beta_gamma(v, ALPHA, BETA, GAMMA, tx, ty, tz)
-    rotate_quaternion(v, 1, tx, ty, tz)
+    rotate_quaternion(v, 180, tx, ty, tz)
     vn_calc = np.zeros((len(v), 3), dtype=np.float32)
     for fi in range(len(f0)):
         x0 = v[f0[fi][0] - 1][0]
@@ -245,14 +249,14 @@ def main():
     texture_image = np.array(ImageOps.flip(Image.open("cat-atlas.jpg")))
     GUBRID_MOOOOOOOOOOOOOD(image_array, 'fusion_mod.png', v, f0, f1, vn, vt, texture_image, 0, 0.03, 1000, 160, 0.5, 0)
     
-    '''f0, f1, v, vt, vn = parse("bunny.obj")
+    f0, f1, v, vt, vn = parse("bunny.obj")
     texture_image = np.array(ImageOps.flip(Image.open("bunny-atlas.jpg")))
     GUBRID_MOOOOOOOOOOOOOD(image_array, 'fusion_mod.png', v, f0, f1, vn, vt, texture_image, 0, 0.03, 0.3, 160, 0.5, 0)
     f0, f1, v, vt, vn = parse("cat.obj")
     texture_image = np.array(ImageOps.flip(Image.open("cat-atlas.jpg")))
     GUBRID_MOOOOOOOOOOOOOD(image_array, 'fusion_mod.png', v, f0, f1, vn, vt, texture_image, 0, 0.03, 500, 100, 0.5, 0)
     
-    f0, f1, v, vt, vn = parse("bunny.obj")
+    '''f0, f1, v, vt, vn = parse("bunny.obj")
     texture_image = np.array(ImageOps.flip(Image.open("bunny-atlas.jpg")))
     GUBRID_MOOOOOOOOOOOOOD(image_array, 'fusion_mod.png', v, f0, f1, vn, vt, texture_image, 0, 0.03, 0.3, -160, 0.5, 0)
     f0, f1, v, vt, vn = parse("cat.obj")
