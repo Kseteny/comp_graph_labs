@@ -184,10 +184,10 @@ def rotate_quaternion(v, teta, tx, ty, tz):
         v[i] = np.array([q_result[1]+tx, q_result[2]+ty, q_result[3]+tz])
         '''
     for i in range(len(v)):
-        vertex_q = np.array([0, v[i][0], v[i][1], v[i][2]])
-        q_conjugate = quaternions_abs(q)
-        rotated_q = quaternions_time(quaternions_time(q, vertex_q), q_conjugate)
-        v[i] = np.array([rotated_q[1] + tx, rotated_q[2] + ty, rotated_q[3] + tz])
+        q_new = np.array([0, v[i][0], v[i][1], v[i][2]])
+        q_abs = quaternions_abs(q)
+        q_result = quaternions_time(quaternions_time(q, q_new), q_abs)
+        v[i] = np.array([q_result[1] + tx, q_result[2] + ty, q_result[3] + tz])
 
 def GUBRID_MOOOOOOOOOOOOOD(image_array:np.array, filename, v, f0, f1, vn, vt, texture_image, tx, ty, tz, ahpha, beta, gamma):
     ALPHA = ahpha
